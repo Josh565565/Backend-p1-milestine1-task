@@ -25,7 +25,6 @@ class MainObjectSearch(generics.ListAPIView):
         if len(search_term) < 1:
             return Response([], status=status.HTTP_200_OK)
         keywords = search_term.split()
-        print(keywords)
         q_objects = []
 
         for keyword in keywords:
