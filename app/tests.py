@@ -1,9 +1,11 @@
 from django.test import TestCase
+from django.urls import reverse
+from rest_framework import status
+
 
 from models import City, Continent, Country, MainObject, State
-from django.test import TestCase
-from django.urls import reverse
 from rest_framework.test import APIClient
+from serializers import MainObjectSerializer
 
 
 class MainObjectModelTest(TestCase):
@@ -99,3 +101,35 @@ class YourAppViewsTest(TestCase):
         response = self.client.get(
             reverse('main-object-detail', args=[self.main_object.pk]))
         self.assertEqual(response.status_code, 200)
+
+
+class YourAppViewsTest(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.main_object = MainObject.objects.create(
+            name="Test Object", postcode="12345")
+
+    def test_ping_view(self):
+        response = self.client.get(reverse('ping'))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, {"reply": "ping"})
+
+    def test_main_object_search_view(self):
+        response = self.client.get(reverse('main-object-search'))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        # assuming one MainObject was created in setUp.
+        self.assertEqual(len(response.data), 1)
+
+    def test_main_object_list_view(self):
+        response = self.client.get(reverse('main-object-list'))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        main_objects = MainObject.objects.all()
+        serializer = MainObjectSerializer(main_objects, many=True)
+        self.assertEqual(response.data, serializer.data)
+
+    def test_main_object_detail_view(self):
+        response = self.client.get(
+            reverse('main-object-detail', args=[self.main_object.id]))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        serializer = MainObjectSerializer(self.main_object)
+        self.assertEqual(response.data, serializer.data)
