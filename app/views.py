@@ -44,3 +44,13 @@ class MainObjectList(generics.ListCreateAPIView):
 class MainObjectDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = MainObject.objects.all()
     serializer_class = MainObjectSerializer
+
+    
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = MainObjectSerializer(instance, data=request.data, partial=True)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
