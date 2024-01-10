@@ -30,6 +30,7 @@ class UserManager(BaseUserManager):
 
 class UserModel(AbstractUser):
     email = models.EmailField(max_length=100, unique=True)
+    username = models.CharField(max_length=100, unique=False, blank=True, null=True)
     date_joined = models.DateTimeField(auto_now_add=True)
     is_admin = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
@@ -39,7 +40,8 @@ class UserModel(AbstractUser):
     objects = UserManager()
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = []
+    REQUIRED_FIELDS = ['is_active']
+
 
     def __str__(self):
-        return self.username
+        return self.email
